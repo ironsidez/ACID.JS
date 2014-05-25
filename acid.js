@@ -816,25 +816,6 @@ acid.prototype = {
 			return false;
 		}
 	},
-	store: {
-		r: function(t, n, i) {
-			return (i) ? acid('@'+t)[n] = i : (acid('@'+t)[n] || false);
-		},
-		l: function(n, i) {
-			return acid.prototype.store.r('l', n, i);
-		},
-		s: function(lvar, objvar) {
-			return acid.prototype.store.r('s', n, i);
-		},
-		c: function() {
-			localStorage.clear();
-			return false;
-		},
-		cs: function() {
-			sessionStorage.clear();
-			return false;
-		}
-	},
 	strng: {
 		hasvalue: function(strng){
 			var r= false;
