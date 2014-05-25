@@ -628,7 +628,7 @@ acid.prototype = {
 			 attr_sub=data.attr_subb,
 			 attr_return=data.attr_return;
 			 var data=null;
-			if(acid('@strng.hasvalue')(item)){
+			if(acid.prototype.strng.hasvalue(item)){
 				var act = obj[attr]=item;
 				if (attr_return) {
 					return act;
@@ -646,7 +646,7 @@ acid.prototype = {
 				if (attr == 'ap') {
 					return obj.appendChild(item);
 				}
-				if (!item && !attr) {
+				if (!acid.prototype.strng.hasvalue(item) && !attr) {
 					return obj.innerHTML;
 				}
 				if(!attr){
