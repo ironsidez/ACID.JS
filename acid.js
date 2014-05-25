@@ -16,6 +16,7 @@ function acid(name, item, act) {
 		s = proto.strng,
 		is = s.is,
 		has = s.has,
+		hasvalue = s.hasvalue,
 		s = null,
 		toArray = proto.array.to,
 		scope = proto.scope,
@@ -49,7 +50,7 @@ function acid(name, item, act) {
 			
 			//mem access
 			if(name[0] == '%'){
-				if (acid('@strng.hasvalue')(item)) {
+				if (hasvalue(item)) {
 					if (item != '#' && item != '!') {
 						mem[name.substring(1)] = item;
 						var obj=item;
@@ -107,7 +108,7 @@ function acid(name, item, act) {
 			return dom;
 		}
 		
-		if (acid('@dom.is')(name)) {
+		if (dom.is(name)) {
 			if (item && item != '#') {
 				if (is(item)) {
 					var name = dom.select(item,name);
@@ -286,7 +287,7 @@ acid.prototype = {
 
 			return (data.scope) ? acid.prototype.scope(data.scope) : obj;
 		},
-		get: function(cls_obj, type, dir , noarray) { //return class objects plus mem
+		get: function(cls_obj, type, dir , noarray) { //return class objects
 			var obj = acid.prototype.dom.r()[type](cls_obj) || false;
 			if(!noarray){
 				var obj = acid.prototype.array.to(obj);
@@ -294,19 +295,19 @@ acid.prototype = {
 			acid.prototype.dom.obj = obj;
 			return (!dir) ? acid.prototype.dom : acid.prototype.scope(dir);
 		},
-		id: function(obj, dir) { //return class objects plus mem
+		id: function(obj, dir) { //return class objects
 			return acid.prototype.dom.get(obj, 'getElementById', dir);
 		},
-		cls: function(obj, dir) { //return class objects plus mem
+		cls: function(obj, dir) { //return class objects
 			return acid.prototype.dom.get(obj, 'getElementsByClassName', dir);
 		},
-		tag: function(obj, dir) { //return tag objects plus mem
+		tag: function(obj, dir) { //return tag objects
 			return acid.prototype.dom.get(obj, 'getElementsByTagName', dir);
 		},
-		query: function(obj, dir) { //return tag objects plus mem
+		query: function(obj, dir) { //return tag objects
 			return acid.prototype.dom.get(obj, 'querySelector', dir , 1);
 		},
-		queryall: function(obj, dir) { //return tag objects plus mem
+		queryall: function(obj, dir) { //return tag objects
 			return acid.prototype.dom.get(obj, 'querySelectorAll', dir);
 		},
 		event: function(name, event_name,type, dir) {
