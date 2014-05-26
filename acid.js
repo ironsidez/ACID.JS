@@ -13,30 +13,24 @@
 function $(name, item, act) {
 	//import scopes
 	var proto=$.prototype,
-		mem = proto.mem,
-		s = proto.strng,
-		is = s.is,
-		has = s.has,
-		hasvalue = s.hasvalue,
-		s = null,
-		toArray = proto.array.to,
 		scope = proto.scope,
-		dom = proto.dom,
-		temp=proto.temp;
+		dom =proto.dom;
 		
 	if (name) {
-		if (is(name)) {
+		if (typeof name === "string") {
 			
-			//temp storage
-			if(!act){
-				var isthere=temp[name];
-				if(isthere){
-					if (item == '!') {
-						return isthere;
-					}
-					dom.obj = isthere;
-					return dom;
+			
+			var selectis=proto.temp[name];
+			if(selectis){
+				var obj=selectis();
+				if (item == '!') {
+					return obj;
 				}
+				if(item){
+					return scope(item);
+				}
+				dom.obj = obj;
+				return dom;
 			}
 			
 			//jump to scope
@@ -46,14 +40,14 @@ function $(name, item, act) {
 			
 			//quick function access
 			if(name[0] == '@'){
-				var isthere=$.prototype.temp_fun[name];
+				var isthere=proto.temp_fun[name];
 				if(isthere){
 					return isthere;
 				}else{
 					var obj= proto.find_fun(name.substring(1));
 					if(typeof(obj) == "function"){
-						$.prototype.temp_fun[name]=obj;
-						$.prototype.temp_fun_clear(name);
+						proto.temp_fun[name]=obj;
+						proto.temp_fun_clear(name);
 					}
 					return obj;
 				}
@@ -61,9 +55,9 @@ function $(name, item, act) {
 			
 			//mem access
 			if(name[0] == '%'){
-				if (hasvalue(item)) {
+				if (proto.strng.hasvalue(item)) {
 					if (item != '#' && item != '!') {
-						mem[name.substring(1)] = item;
+						proto.mem[name.substring(1)] = item;
 						var obj=item;
 					}
 				}
@@ -79,6 +73,7 @@ function $(name, item, act) {
 			
 			//dom selection
 			var obj=dom.select(name);
+			
 			if (!obj) {
 				var obj = false;
 			}else{
@@ -95,7 +90,6 @@ function $(name, item, act) {
 			if (item == '!') {
 				return obj;
 			}
-			dom.selector = name;
 			if(obj.length == 1){
 				var obj=obj[0];
 			}
@@ -106,7 +100,7 @@ function $(name, item, act) {
 			return dom;
 		}
 		
-		if (name instanceof Array) {
+		if (name.length) {
 			if (item == '#') {
 				dom.obj = name;
 				return scope(item);
@@ -116,7 +110,7 @@ function $(name, item, act) {
 		
 		if (dom.is(name)) {
 			if (item && item != '#') {
-				if (is(item)) {
+				if (typeof item === "string") {
 					var name = dom.select(item,name);
 					if (act == '!') {
 						return name;
@@ -140,7 +134,7 @@ $.prototype = {
 			$.prototype.temp[name]=null;
 			name=null;
 			return false;
-		},10000);
+		},30000);
 		return false;
 	},
 	temp_fun_clear:function(name){
@@ -148,7 +142,7 @@ $.prototype = {
 			$.prototype.temp_fun[name]=null;
 			name=null;
 			return false;
-		},10000);
+		},300);
 		return false;
 	},
 	symbol:{
@@ -230,57 +224,53 @@ $.prototype = {
 	},
 	dom: {
 		select:function(select,context){
-			var has=$.prototype.strng.has,
-				toArray = $.prototype.array.to,
-				select=select.trim(),
-				space=has(select, " "),
-				less=has(select, "<"),
-				more=has(select, ">"),
-				dot=has(select, "."),
-				par=has(select, "("),
-				col=has(select, ":"),
-				hash=has(select, "#"),
-				bracket=has(select, "["),
-				cls=false,
-				id=false,
-				dotnhash=false,
-				multipledots=false;
-			
-			if(dot){
-				var multipledots=select.split('.').length,
-					cls=(select[0] == '.')? true : false;
-				if(multipledots > 2){
-					var multipledots=true;
-				}else{
-					if(cls){
-						var multipledots=false;
-					}else{
-						var multipledots=true;
-					}
-				}
-			}
-			
-			if(hash){
-				var id=(select[0] == '#')? true : false;
-				if(dot){
-					var dotnhash=true;	
-				}
-			}
-				
+			var k = /^.[\w_-]+$/,
+				nt = /^[A-Za-z]+$/,
+				save=false,
+				obj=false;
+			 
 			if(!context){
-				var context=document;
-				var save=true;
+				var context=document,
+				save=true;
 			}
-			
-			if (space || less || more || bracket || multipledots || dotnhash || par || col) {
-				var obj = toArray(context.querySelectorAll(select));
-			} else if (id) {
-				var obj = context.getElementById(select.substring(1));
-			} else if (cls) {
-				var obj = toArray(context.getElementsByClassName(select.substring(1)));
-			} else {
-				var obj = toArray(context.getElementsByTagName(select));
-			} 
+			 
+			if (select[0] === ".") {
+                if (k.test(select)){
+	                var obj= context.getElementsByClassName(select.slice(1));
+	                if(save){
+	                	var safe=select.slice(1),
+			           		fun=function(){
+							 return document.getElementsByClassName(safe);
+						};
+	                }
+                }
+            } else if (select[0] === "#") {
+                if (k.test(select)){
+                	var obj=context.getElementById(select.slice(1));
+                	if(save){
+	                	var safe=select.slice(1);
+	                	var fun=function(){
+							 return document.getElementById(safe);
+						};
+					}
+                }
+            } else if (nt.test(select)){
+	            var obj= context.getElementsByTagName(select);
+	            if(save){
+		            var fun=function(){
+						return document.getElementsByTagName(select);
+					};
+				}
+            }
+            if(!obj){
+	         	var obj= context.querySelectorAll(select);
+			 	if(save){
+				 	var fun=function(){
+						return document.querySelectorAll(select);
+					};
+				}
+            }
+				
 			if(!obj){
 				var obj=false;
 			}
@@ -290,7 +280,7 @@ $.prototype = {
 			}
 			if(obj && save){
 				$.prototype.temp_clear(select);
-				$.prototype.temp[select]=obj;
+				$.prototype.temp[select]=fun;
 			}
 			return obj;	
 		},
@@ -309,7 +299,7 @@ $.prototype = {
 			var r=false,
 			obj=$.prototype.dom.obj;
 			if(obj){
-				if(obj instanceof Array){
+				if(obj.length){
 					if(obj.length > 0){
 						var r=true;
 					}
@@ -325,29 +315,20 @@ $.prototype = {
 		at: function(data) { // return classList obj
 								
 			data.obj=$.prototype.dom.obj;
-			
 			var obj = $.prototype.dom.htmlobj_array(data);
 			
-			if (!data.scope || data.clear) {
+			if (!data.scope) {
 				$.prototype.dom.obj = null;
-			}
-			
-			if(data.clear){
-				$.prototype.temp[$.prototype.dom.selector]=null;
-				$.prototype.dom.selector = null;
 			}
 
 			return (data.scope) ? $.prototype.scope(data.scope) : obj;
 		},
-		get: function(cls_obj, type, dir , noarray) { //return class objects
+		get: function(cls_obj, type, dir) { //return class objects
 			var parent=$.prototype.dom.obj;
 			if(!$.prototype.dom.is(parent)){
 				var parent=document;
 			}
 			var obj = parent[type](cls_obj) || false;
-			if(!noarray){
-				var obj = $.prototype.array.to(obj);
-			}
 			$.prototype.dom.obj = obj;
 			return (!dir) ? $.prototype.dom : $.prototype.scope(dir);
 		},
@@ -452,7 +433,6 @@ $.prototype = {
 		},
 		remove: function(dir) { //remove obj
 			var data=$.prototype.dom.build('remove',dir);
-			data.clear=1;
 			return $.prototype.dom.at(data);
 		},
 		clear: function(dir) { //clear obj
@@ -756,22 +736,23 @@ $.prototype = {
 		htmlobj_array: function(data) {
 			
 			var obj=data.obj;
-		
-			if (obj instanceof Array) {
-				var i = obj.length;
+			var empty=[];
+			
+			var i = obj.length;
+			if (i) {
 				while (i--) {
-					if (obj[i] instanceof Array) {
-						var a = obj[i].length;
+					var a = obj[i].length;
+					if (a) {
 						while (a--) {
 							data.obj=obj[i][a];
-							obj[i][a] = $.prototype.dom.op(data);
+							empty[i][a] = $.prototype.dom.op(data);
 						}
 					} else {
 						data.obj=obj[i];
-						obj[i] = $.prototype.dom.op(data);
+						empty[i] = $.prototype.dom.op(data);
 					}
 				}
-				return obj;
+				return empty;
 			} else {
 				var obj=null;
 				return $.prototype.dom.op(data);
@@ -883,12 +864,9 @@ $.prototype = {
 	array: {
 		slice: Array.prototype.slice,
 		to: function(nodes) { //nodelist to array
-			var len = nodes.length;
-		    var retval = new Array(len);
-		    for (var i = 0; i < len; i++) {
-		      retval[i] = nodes[i];
-		    }
-		    return retval;
+			var arr = [];
+		    for(var i=-1,l=nodes.length;++i!==l;arr[i]=nodes[i]);
+		    return arr;
 		},
 		list:function(strng,reped){
 			var reped=(reped)?reped:' ';
