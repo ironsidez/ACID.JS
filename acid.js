@@ -883,7 +883,12 @@ $.prototype = {
 	array: {
 		slice: Array.prototype.slice,
 		to: function(nodes) { //nodelist to array
-			return $.prototype.array.slice.call(nodes) || nodes;
+			var len = nodes.length;
+		    var retval = new Array(len);
+		    for (var i = 0; i < len; i++) {
+		      retval[i] = nodes[i];
+		    }
+		    return retval;
 		},
 		list:function(strng,reped){
 			var reped=(reped)?reped:' ';
