@@ -862,7 +862,7 @@ temp:{},
 		var len=data.length;
 		var i=0;
 		while(i < len){
-			if(acid('@strng.is')(data[i][0])){
+			if(acid.prototype.strng.is(data[i][0])){
 				acid(data[i][0]).apply(null, data[i][1]);
 			}else{
 				data[i][0].apply(null, data[i][1]);
@@ -883,7 +883,7 @@ temp:{},
 		return false;
 	},
 	async_apply:function(item){
-		if(acid('@strng.is')(item[0])){
+		if(acid.prototype.strng.is(item[0])){
 			acid(item[0]).apply(null, item[1]);
 		}else{
 			item[0].apply(null, item[1]);
@@ -899,7 +899,7 @@ temp:{},
 			var item=data[i];
 			(function (item)  {
 				setTimeout(function(){
-					acid('@async_apply')(item);
+					acid.prototype.strng.async_apply(item);
 					item=null;
 					return false;
 				},10+i);
