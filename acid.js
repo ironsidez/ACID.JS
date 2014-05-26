@@ -1,5 +1,5 @@
 /**
- * ACID JS BETA.
+ * $ JS BETA.
  * @version 1.0
  * @author Thomas Marchi
  * @copyright 2014 Thomas Marchi
@@ -9,9 +9,9 @@
  
 "use strict";
 
-function acid(name, item, act) {
+function $(name, item, act) {
 	//import scopes
-	var proto=acid.prototype,
+	var proto=$.prototype,
 		mem = proto.mem,
 		s = proto.strng,
 		is = s.is,
@@ -51,7 +51,7 @@ function acid(name, item, act) {
 			//mem access
 			if(name[0] == '%'){
 				if (hasvalue(item)) {
-					if (item != '#' && item != '!') {
+					if (item != '#') {
 						mem[name.substring(1)] = item;
 						var obj=item;
 					}
@@ -128,12 +128,12 @@ function acid(name, item, act) {
 	return proto;
 }
 
-acid.prototype = {
+$.prototype = {
 temp:{},
 	temp_clear:function(name){
 		console.log(name);
 		setTimeout(function() {
-			acid.prototype.temp[name]=null;
+			$.prototype.temp[name]=null;
 			name=null;
 			return false;
 		},10000);
@@ -143,62 +143,62 @@ temp:{},
 		if (gc instanceof Array) {
 			var i = gc;
 			while (i--) {
-				acid.prototype.mem[gc[i]] = 0;
+				$.prototype.mem[gc[i]] = 0;
 			}
 			return false;
 		}
-		acid.prototype.mem[gc] = 0;
+		$.prototype.mem[gc] = 0;
 		return false;
 	},
 	symbol:{
 		'@':function(){
-			return acid.prototype;
+			return $.prototype;
 		},
 		'#':function(){
-			return acid.prototype.dom;
+			return $.prototype.dom;
 		},
 		'!':function(){
-			return acid.prototype.dom.obj;
+			return $.prototype.dom.obj;
 		},
 		'%':function(){
-			return acid.prototype.mem;
+			return $.prototype.mem;
 		},
-		'acid':function(){
-			return acid;
+		'$':function(){
+			return $;
 		},
 	},
 	find_fun:function(name){
-		var has=acid.prototype.strng.has;
+		var has=$.prototype.strng.has;
 		if (has(name, '.')) {
 			var newname = name.split('.'),
 				length = newname.length,
-				obj = acid.prototype[newname[0]];
+				obj = $.prototype[newname[0]];
 			if(length>1){
 				for (var i = 1; i < length; i++) {
 					var obj = obj[newname[i]];
 				}
 			}
 		} else {
-			var obj = acid.prototype[name];
+			var obj = $.prototype[name];
 		}
 		return obj;
 	},
 	scope: function(scope) {
 		if(scope.length==1){
 			if(scope!='#' && scope!='!'){
-				acid.prototype.dom.obj = null;
+				$.prototype.dom.obj = null;
 			}
-			var scope=acid.prototype.symbol[scope]();
+			var scope=$.prototype.symbol[scope]();
 		}
 		else {
-			var scope = acid.prototype.find_fun(scope.substring(1));
+			var scope = $.prototype.find_fun(scope.substring(1));
 		}
 		return scope;
 	},
 	dom: {
 		select:function(select,context){
-			var has=acid.prototype.strng.has,
-				toArray = acid.prototype.array.to,
+			var has=$.prototype.strng.has,
+				toArray = $.prototype.array.to,
 				select=select.trim(),
 				space=has(select, " "),
 				less=has(select, "<"),
@@ -256,11 +256,11 @@ temp:{},
 		},
 		obj: {},
 		r: function() {
-			return acid.prototype.dom.obj || false;
+			return $.prototype.dom.obj || false;
 		},
 		exist:function(){
 			var r=false,
-			obj=acid.prototype.dom.r();
+			obj=$.prototype.dom.r();
 			if(obj){
 				if(obj instanceof Array){
 					if(obj.length > 0){
@@ -280,55 +280,55 @@ temp:{},
 		},
 		at: function(data) { // return classList obj
 								
-			data.obj=acid.prototype.dom.r();
+			data.obj=$.prototype.dom.r();
 			
-			var obj = acid.prototype.dom.htmlobj_array(data);
+			var obj = $.prototype.dom.htmlobj_array(data);
 			
 			if (!data.scope) {
-				acid.prototype.dom.obj = null;
+				$.prototype.dom.obj = null;
 			}
 
-			return (data.scope) ? acid.prototype.scope(data.scope) : obj;
+			return (data.scope) ? $.prototype.scope(data.scope) : obj;
 		},
 		get: function(cls_obj, type, dir , noarray) { //return class objects
-			var obj = acid.prototype.dom.r()[type](cls_obj) || false;
+			var obj = $.prototype.dom.r()[type](cls_obj) || false;
 			if(!noarray){
-				var obj = acid.prototype.array.to(obj);
+				var obj = $.prototype.array.to(obj);
 			}
-			acid.prototype.dom.obj = obj;
-			return (!dir) ? acid.prototype.dom : acid.prototype.scope(dir);
+			$.prototype.dom.obj = obj;
+			return (!dir) ? $.prototype.dom : $.prototype.scope(dir);
 		},
 		cls: function(obj, dir) { //return class objects
-			return acid.prototype.dom.get(obj, 'getElementsByClassName', dir);
+			return $.prototype.dom.get(obj, 'getElementsByClassName', dir);
 		},
 		tag: function(obj, dir) { //return tag objects
-			return acid.prototype.dom.get(obj, 'getElementsByTagName', dir);
+			return $.prototype.dom.get(obj, 'getElementsByTagName', dir);
 		},
 		query: function(obj, dir) { //return tag objects
-			return acid.prototype.dom.get(obj, 'querySelector', dir , 1);
+			return $.prototype.dom.get(obj, 'querySelector', dir , 1);
 		},
 		queryall: function(obj, dir) { //return tag objects
-			return acid.prototype.dom.get(obj, 'querySelectorAll', dir);
+			return $.prototype.dom.get(obj, 'querySelectorAll', dir);
 		},
 		event: function(name, event_name,type, dir) {
-			var obj = acid.prototype.dom.r();
+			var obj = $.prototype.dom.r();
 			
 			if(type=='-'){
-				acid('@event.remove')(obj,name, event_name);
+				$('@event.remove')(obj,name, event_name);
 			}
 			if(type=='+'){
-				acid('@event.add')(obj,name, event_name);
+				$('@event.add')(obj,name, event_name);
 			}
 			
 			if (dir) {
-				return acid.prototype.scope(dir);
+				return $.prototype.scope(dir);
 			} else {
-				acid.prototype.dom.obj = null;
+				$.prototype.dom.obj = null;
 			}
 			return obj;
 		},
 		has:function(name,dir){
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:{
 					attr:'hasAttribute',
 					item:name,
@@ -367,10 +367,10 @@ temp:{},
 					break;
 			}
 			
-			return acid.prototype.dom.at(data);
+			return $.prototype.dom.at(data);
 		},
 		tc: function(name, dir) { //textcontent
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:{
 					attr:'textContent',
 					item:name,
@@ -380,7 +380,7 @@ temp:{},
 			});
 		},
 		cn: function(name, dir) { //className
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:{
 					attr:'class',
 					item:name,
@@ -390,7 +390,7 @@ temp:{},
 			});
 		},
 		attr: function(attr, item, dir) { //attr
-			var returned = acid.prototype.dom.at({
+			var returned = $.prototype.dom.at({
 				info:{
 					attr:attr,
 					item:item,
@@ -401,19 +401,19 @@ temp:{},
 			return returned;
 		},
 		remove: function(dir) { //remove obj
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				attr:'remove',
 				scope:dir
 			});
 		},
 		clear: function(dir) { //clear obj
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				attr:'clear',
 				scope:dir
 			});
 		},
 		html: function(html, type, dir) { //place html
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:{
 					html:html,
 					type:type
@@ -423,7 +423,7 @@ temp:{},
 			});
 		},
 		upto: function(name, dir) {
-			var obj = acid.prototype.dom.r();
+			var obj = $.prototype.dom.r();
 			while (obj.parentNode) {
 				var obj = obj.parentNode;
 				var cls = obj.classList;
@@ -437,7 +437,7 @@ temp:{},
 			return obj;
 		},
 		parlv: function() {
-			var obj = acid.prototype.dom.r();
+			var obj = $.prototype.dom.r();
 			var i = Number(obj.dataset.lv);
 			if (i > 0) {
 				var obj = obj.parentNode;
@@ -452,38 +452,38 @@ temp:{},
 			return obj;
 		},
 		ison: function(name, dir) { //ison
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:name,
 				attr:'ison',
 				scope:dir
 			});
 		},
 		sub: function(name, dir) { //subtract num to span
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:name,
 				attr:'sub',
 				scope:dir
 			});
 		},
 		add: function(name, dir) { //add num to span
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 				info:name,
 				attr:'add',
 				scope:dir
 			});
 		},
 		center: function(dir) { //center html obj
-			return acid.prototype.dom.at({
+			return $.prototype.dom.at({
 					attr:'center',
 					scope:dir
 				});
 		},
 		click: function(dir) { //center html obj
-			acid.prototype.event.click();
+			$.prototype.event.click();
 			if (dir) {
-				return acid.prototype.scope(dir);
+				return $.prototype.scope(dir);
 			} else {
-				acid.prototype.dom.obj = null;
+				$.prototype.dom.obj = null;
 			}
 		},
 		attr_op:function(data){
@@ -492,7 +492,7 @@ temp:{},
 				 attr=data.info.attr;
 			var data=null;
 				 
-			if (acid('@strng.hasvalue')(item)) {
+			if ($('@strng.hasvalue')(item)) {
 				if (item == '-') {
 					obj.removeAttribute(attr);
 				}else{
@@ -509,12 +509,12 @@ temp:{},
 			var cls=obj.classList;
 			if (cls.contains('ison')) {
 				if (info) {
-					acid(obj, 'span').sub(info);
+					$(obj, 'span').sub(info);
 				}
 				cls.remove('ison');
 			} else {
 				if (info) {
-					acid(obj, 'span').add(info);
+					$(obj, 'span').add(info);
 				}
 				cls.add('ison');
 			}
@@ -551,15 +551,15 @@ temp:{},
 			var obj=data.obj,
 			data=null,
 			item = obj.dataset.centerobj,
-			itemname = item.replace(/ /g,'acid').replace(/#/g,'acid').replace(/\./g,'acid');
+			itemname = item.replace(/ /g,'$').replace(/#/g,'$').replace(/\./g,'$');
 			
 			if (item) {
-				var wh = acid('%dom.wh')[itemname];
+				var wh = $('%dom.wh')[itemname];
 				if (!wh) {
-					var item = acid(item, '!');
+					var item = $(item, '!');
 					var w = Number(item.offsetWidth),
 						h = Number(item.offsetHeight);
-					acid('%dom.wh')[itemname] = [w, h];
+					$('%dom.wh')[itemname] = [w, h];
 					console.log('DIV CENTER SAVED');
 				} else {
 					var w = Number(wh[0]),
@@ -567,8 +567,8 @@ temp:{},
 					console.log('DIV CENTER SAVED USED');
 				}
 			} else {
-				var w = Number(acid('%dom.body_width')),
-					h = Number(acid('%dom.body_height'));
+				var w = Number($('%dom.body_width')),
+					h = Number($('%dom.body_height'));
 			}
 			var divW = obj.offsetWidth,
 				divH = obj.offsetHeight;
@@ -590,11 +590,11 @@ temp:{},
 			 attr_sub=data.attr_sub,
 			 attr_return=data.attr_return;
 			 var data=null;
-			if (acid('@strng.hasvalue')(item)) {
+			if ($('@strng.hasvalue')(item)) {
 				var i=item.length,
 				act =[];
 				if(i > 0){
-					if (acid.prototype.strng.has(item, ',')) {
+					if ($.prototype.strng.has(item, ',')) {
 						var item = item.split(','),
 						i=item.length;
 					}
@@ -630,7 +630,7 @@ temp:{},
 			 attr_sub=data.attr_subb,
 			 attr_return=data.attr_return;
 			 var data=null;
-			if(acid.prototype.strng.hasvalue(item)){
+			if($.prototype.strng.hasvalue(item)){
 				var act = obj[attr]=item;
 				if (attr_return) {
 					return act;
@@ -648,7 +648,7 @@ temp:{},
 				if (attr == 'ap') {
 					return obj.appendChild(item);
 				}
-				if (!acid.prototype.strng.hasvalue(item) && !attr) {
+				if (!$.prototype.strng.hasvalue(item) && !attr) {
 					return obj.innerHTML;
 				}
 				if(!attr){
@@ -660,7 +660,7 @@ temp:{},
 							obj.removeChild(obj.firstChild);
 						}
 					}
-					if (acid('@dom.is')(item)) {
+					if ($('@dom.is')(item)) {
 						return obj.appendChild(item);
 					}
 					var attr = 'be';
@@ -704,7 +704,7 @@ temp:{},
 			if (!data.obj) {return false;}
 			
 			if (data.attr) {
-				var returned=acid.prototype.dom[data.attr+'_op'](data),
+				var returned=$.prototype.dom[data.attr+'_op'](data),
 				data=null;
 				return returned;
 			}
@@ -722,17 +722,17 @@ temp:{},
 						var a = obj[i].length;
 						while (a--) {
 							data.obj=obj[i][a];
-							obj[i][a] = acid.prototype.dom.op(data);
+							obj[i][a] = $.prototype.dom.op(data);
 						}
 					} else {
 						data.obj=obj[i];
-						obj[i] = acid.prototype.dom.op(data);
+						obj[i] = $.prototype.dom.op(data);
 					}
 				}
 				return obj;
 			} else {
 				var obj=null;
-				return acid.prototype.dom.op(data);
+				return $.prototype.dom.op(data);
 			}
 			
 			return false;
@@ -766,33 +766,33 @@ temp:{},
 				var send_obj = htmlobj;
 			}
 			if (items[0] != 'this' && type != 'mem') {
-				var send_obj = acid(items[0], '!');
+				var send_obj = $(items[0], '!');
 			}
 			
 			if (type == 'memtog') {
 				var tog = items[1].split('|');
 				if (send_obj == tog[0]) {
-					acid(items[0], tog[1]);
+					$(items[0], tog[1]);
 				} else {
-					acid(items[0], tog[0]);
+					$(items[0], tog[0]);
 				}
 				var send_obj = null;
 			}
 			if (type == 'mem') {
-				acid(items[0], items[1]);
+				$(items[0], items[1]);
 			}
 			if (type == 'to') {
-				var parent = acid(items[0], '!');
+				var parent = $(items[0], '!');
 				if (!parent.classList.contains(items[1])) {
 					parent.className = '';
 				}
-				var send_obj=acid(items[0], '!');
+				var send_obj=$(items[0], '!');
 			}
 			
 			if(send_obj){
 				data.obj=send_obj;
 				data.info.item=items[1];
-				acid.prototype.dom.htmlobj_array(data);
+				$.prototype.dom.htmlobj_array(data);
 			}
 			var data=null;
 			var send_obj = null;
@@ -807,10 +807,10 @@ temp:{},
 				if (i > 1) {
 					while (i--) {
 						data.vars=cmds[i];
-						acid.prototype.dom.dynamic_loop_acts(data);
+						$.prototype.dom.dynamic_loop_acts(data);
 					}
 				} else {
-					acid.prototype.dom.dynamic_loop_acts(data);
+					$.prototype.dom.dynamic_loop_acts(data);
 				}
 			}
 			var data=null;
@@ -841,7 +841,7 @@ temp:{},
 	array: {
 		slice: Array.prototype.slice,
 		to: function(nodes) { //nodelist to array
-			return acid.prototype.array.slice.call(nodes) || nodes;
+			return $.prototype.array.slice.call(nodes) || nodes;
 		},
 		list:function(strng,reped){
 			var reped=(reped)?reped:' ';
@@ -849,7 +849,7 @@ temp:{},
 		}
 	},
 	timer:function(fun,time){
-		var fun=(acid('@strng.is')(fun))? acid(fun): fun ;
+		var fun=($('@strng.is')(fun))? $(fun): fun ;
 		setTimeout(function() {
 			fun();
 			fun=null;
@@ -862,8 +862,8 @@ temp:{},
 		var len=data.length;
 		var i=0;
 		while(i < len){
-			if(acid.prototype.strng.is(data[i][0])){
-				acid(data[i][0]).apply(null, data[i][1]);
+			if($.prototype.strng.is(data[i][0])){
+				$(data[i][0]).apply(null, data[i][1]);
 			}else{
 				data[i][0].apply(null, data[i][1]);
 			}
@@ -874,17 +874,17 @@ temp:{},
 		return false;
 	},
 	sync:function (){
-		var data=acid.prototype.array.to(arguments);
+		var data=$.prototype.array.to(arguments);
 		setTimeout(function() {
-			acid.prototype.sync_apply(data);
+			$.prototype.sync_apply(data);
 			data=null;
 			return false;
 		}, 10);
 		return false;
 	},
 	async_apply:function(item){
-		if(acid.prototype.strng.is(item[0])){
-			acid(item[0]).apply(null, item[1]);
+		if($.prototype.strng.is(item[0])){
+			$(item[0]).apply(null, item[1]);
 		}else{
 			item[0].apply(null, item[1]);
 		}
@@ -892,14 +892,14 @@ temp:{},
 		return false;
 	},
 	async:function (){
-		var data=acid.prototype.array.to(arguments);
+		var data=$.prototype.array.to(arguments);
 		var len=data.length;
 		var i=0;
 		while(i < len){
 			var item=data[i];
 			(function (item)  {
 				setTimeout(function(){
-					acid.prototype.strng.async_apply(item);
+					$.prototype.strng.async_apply(item);
 					item=null;
 					return false;
 				},10+i);
