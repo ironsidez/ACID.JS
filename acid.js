@@ -100,9 +100,12 @@ function acid(name, item, act) {
 			return dom;
 		}
 		
-		if (Array.isArray(name)) {
-			if (item) {
+		if (name instanceof Array) {
+			if (item == '#') {
 				dom.obj = name;
+				return dom;
+			}
+			if(item){
 				return scope(item);
 			}
 			return dom;
@@ -126,18 +129,18 @@ function acid(name, item, act) {
 }
 
 acid.prototype = {
-	temp:{},
+temp:{},
 	temp_clear:function(name){
 		console.log(name);
 		setTimeout(function() {
 			acid.prototype.temp[name]=null;
 			name=null;
 			return false;
-		},5000);
+		},10000);
 		return false;
 	},
 	free: function(gc) { //clear a var(s) in mem
-		if (Array.isArray(gc)) {
+		if (gc instanceof Array) {
 			var i = gc;
 			while (i--) {
 				acid.prototype.mem[gc[i]] = 0;
@@ -188,7 +191,7 @@ acid.prototype = {
 			var scope=acid.prototype.symbol[scope]();
 		}
 		else {
-			var scope = acid.prototype.find_fun(scope);
+			var scope = acid.prototype.find_fun(scope.substring(1));
 		}
 		return scope;
 	},
@@ -259,7 +262,7 @@ acid.prototype = {
 			var r=false,
 			obj=acid.prototype.dom.r();
 			if(obj){
-				if(Array.isArray(obj)){
+				if(obj instanceof Array){
 					if(obj.length > 0){
 						var r=true;
 					}
@@ -294,9 +297,6 @@ acid.prototype = {
 			}
 			acid.prototype.dom.obj = obj;
 			return (!dir) ? acid.prototype.dom : acid.prototype.scope(dir);
-		},
-		id: function(obj, dir) { //return class objects
-			return acid.prototype.dom.get(obj, 'getElementById', dir);
 		},
 		cls: function(obj, dir) { //return class objects
 			return acid.prototype.dom.get(obj, 'getElementsByClassName', dir);
@@ -554,19 +554,21 @@ acid.prototype = {
 			itemname = item.replace(/ /g,'acid').replace(/#/g,'acid').replace(/\./g,'acid');
 			
 			if (item) {
-				var wh = acid('dom.wh')[itemname];
+				var wh = acid('%dom.wh')[itemname];
 				if (!wh) {
 					var item = acid(item, '!');
 					var w = Number(item.offsetWidth),
 						h = Number(item.offsetHeight);
-					acid('dom.wh')[itemname] = [w, h];
+					acid('%dom.wh')[itemname] = [w, h];
+					console.log('DIV CENTER SAVED');
 				} else {
 					var w = Number(wh[0]),
 						h = Number(wh[1]);
+					console.log('DIV CENTER SAVED USED');
 				}
 			} else {
-				var w = Number(acid('dom.body_width')),
-					h = Number(acid('dom.body_height'));
+				var w = Number(acid('%dom.body_width')),
+					h = Number(acid('%dom.body_height'));
 			}
 			var divW = obj.offsetWidth,
 				divH = obj.offsetHeight;
@@ -596,7 +598,7 @@ acid.prototype = {
 						var item = item.split(','),
 						i=item.length;
 					}
-					if (Array.isArray(item)) {
+					if (item instanceof Array) {
 						while (i--) {
 							if(attr_sub){
 								act.push(obj[attr][attr_sub](item[i]));
@@ -713,10 +715,10 @@ acid.prototype = {
 			
 			var obj=data.obj;
 		
-			if (Array.isArray(obj)) {
+			if (obj instanceof Array) {
 				var i = obj.length;
 				while (i--) {
-					if (Array.isArray(obj[i])) {
+					if (obj[i] instanceof Array) {
 						var a = obj[i].length;
 						while (a--) {
 							data.obj=obj[i][a];
@@ -827,7 +829,7 @@ acid.prototype = {
 			return r;	
 		},
 		is: function(str) {
-			return typeof(str) === "string";
+			return str.constructor === String;
 		},
 		has: function(str, srch) { //search string return true or false
 			return str.indexOf(srch) != -1;
