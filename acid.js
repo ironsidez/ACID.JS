@@ -82,9 +82,6 @@ function $(name, item, act) {
 			if (!obj) {
 				var obj = false;
 			}else{
-				if (obj.length == 1) {
-					var obj = obj[0];
-				}
 				if(act){
 					if (act == 'last') {
 						var obj = obj[obj.length - 1];
@@ -99,6 +96,9 @@ function $(name, item, act) {
 				return obj;
 			}
 			dom.selector = name;
+			if(obj.length == 1){
+				var obj=obj[0];
+			}
 			dom.obj = obj;
 			var obj = null,
 				item = null,
@@ -362,7 +362,7 @@ $.prototype = {
 			return $.prototype.dom.get(obj, 'querySelectorAll', dir);
 		},
 		event: function(name, event_name,type, dir) {
-			var obj = $.prototype.dom.obj;
+			var obj = $.prototype.dom.obj
 			
 			if(type=='-'){
 				$('@event.remove')(obj,name, event_name);
@@ -378,28 +378,29 @@ $.prototype = {
 			}
 			return obj;
 		},
+		build:function(attr,dir,infoattr){
+			var data={
+				attr:attr,
+				scope:dir,
+				info:{}
+			};
+			if(infoattr){
+				data.info.attr=infoattr;
+			}
+			var attr=null,dir=null,infoattr=null;
+			return data;
+		},
 		has:function(name,dir){
-			return $.prototype.dom.at({
-				info:{
-					attr:'hasAttribute',
-					item:name,
-				},
-				attr:'prop',
-				attr_return:1,
-				scope:dir
-			});
+			var data=$.prototype.dom.build('prop',dir,'hasAttribute');
+			data.info.item=name;
+			data.attr_return=1;
+			return $.prototype.dom.at(data);
 		},
 		cl: function(name, attr, dir) { //classList
-			var data={
-				info:{
-					attr:'classList',
-					item:name,
-				},
-				attr:'prop',
-				attr_sub:attr,
-				scope:dir
-			};
-			
+			var data=$.prototype.dom.build('prop',dir,'classList');
+			data.info.item=name;
+			data.attr_sub=attr;
+
 			switch (attr) {
 				case '+':
 					data.attr_sub = 'add';
@@ -421,60 +422,68 @@ $.prototype = {
 			return $.prototype.dom.at(data);
 		},
 		tc: function(name, dir) { //textcontent
-			return $.prototype.dom.at({
-				info:{
-					attr:'textContent',
-					item:name,
-				},
-				attr:'prop_min',
-				scope:dir
-			});
+			var data=$.prototype.dom.build('prop_min',dir,'textContent');
+			data.info.item=name;
+			return $.prototype.dom.at(data);
+		},
+		ow: function(name, dir) { //offsetWidth
+			var data=$.prototype.dom.build('prop_min',dir,'offsetWidth');
+			return $.prototype.dom.at(data);
+		},
+		oh: function(name, dir) { //offsetHeight
+			var data=$.prototype.dom.build('prop_min',dir,'offsetHeight');
+			return $.prototype.dom.at(data);
+		},
+		ot: function(name, dir) { //offsetTop
+			var data=$.prototype.dom.build('prop_min',dir,'offsetTop');
+			return $.prototype.dom.at(data);
 		},
 		cn: function(name, dir) { //className
-			return $.prototype.dom.at({
-				info:{
-					attr:'class',
-					item:name,
-				},
-				attr:'attr',
-				scope:dir
-			});
+			var data=$.prototype.dom.build('attr',dir,'class');
+			data.info.item=name;
+			return $.prototype.dom.at(data);
 		},
 		attr: function(attr, item, dir) { //attr
-			var returned = $.prototype.dom.at({
-				info:{
-					attr:attr,
-					item:item,
-				},
-				attr:'attr',
-				scope:dir
-			});
-			return returned;
+			var data=$.prototype.dom.build('attr',dir,attr);
+			data.info.item=item;
+			return $.prototype.dom.at(data);
 		},
 		remove: function(dir) { //remove obj
-			return $.prototype.dom.at({
-				attr:'remove',
-				scope:dir
-			});
+			var data=$.prototype.dom.build('remove',dir);
+			data.clear=1;
+			return $.prototype.dom.at(data);
 		},
 		clear: function(dir) { //clear obj
-			return $.prototype.dom.at({
-				attr:'clear',
-				scope:dir
-			});
+			var data=$.prototype.dom.build('clear',dir);
+			return $.prototype.dom.at(data);
 		},
 		html: function(html, type, dir) { //place html
-			return $.prototype.dom.at({
-				info:{
-					html:html,
-					type:type
-				},
-				attr:'html',
-				scope:dir
-			});
+			var data=$.prototype.dom.build('html',dir);
+			data.info.html=html;
+			data.info.type=type;
+			return $.prototype.dom.at(data);
+		},
+		ison: function(name, dir) { //ison
+			var data=$.prototype.dom.build('ison',dir);
+			data.info=name;
+			return $.prototype.dom.at(data);
+		},
+		sub: function(name, dir) { //subtract num to span
+			var data=$.prototype.dom.build('sub',dir);
+			data.info=name;
+			return $.prototype.dom.at(data);
+		},
+		add: function(name, dir) { //add num to span
+			var data=$.prototype.dom.build('add',dir);
+			data.info=name;
+			return $.prototype.dom.at(data);
+		},
+		center: function(dir) { //center html obj
+			var data=$.prototype.dom.build('center',dir);
+			return $.prototype.dom.at(data);
 		},
 		upto: function(name, dir) {
-			var obj = $.prototype.dom.obj;
+			var obj = $.prototype.dom.obj
 			while (obj.parentNode) {
 				var obj = obj.parentNode;
 				var cls = obj.classList;
@@ -488,7 +497,7 @@ $.prototype = {
 			return obj;
 		},
 		parlv: function() {
-			var obj = $.prototype.dom.obj;
+			var obj = $.prototype.dom.obj
 			var i = Number(obj.dataset.lv);
 			if (i > 0) {
 				var obj = obj.parentNode;
@@ -501,33 +510,6 @@ $.prototype = {
 			}
 			var i = null;
 			return obj;
-		},
-		ison: function(name, dir) { //ison
-			return $.prototype.dom.at({
-				info:name,
-				attr:'ison',
-				scope:dir
-			});
-		},
-		sub: function(name, dir) { //subtract num to span
-			return $.prototype.dom.at({
-				info:name,
-				attr:'sub',
-				scope:dir
-			});
-		},
-		add: function(name, dir) { //add num to span
-			return $.prototype.dom.at({
-				info:name,
-				attr:'add',
-				scope:dir
-			});
-		},
-		center: function(dir) { //center html obj
-			return $.prototype.dom.at({
-					attr:'center',
-					scope:dir
-				});
 		},
 		click: function(dir) { //center html obj
 			$.prototype.event.click();
@@ -602,15 +584,20 @@ $.prototype = {
 			var obj=data.obj,
 			data=null,
 			item = obj.dataset.centerobj,
-			itemname = item.replace(/ /g,'$').replace(/#/g,'$').replace(/\./g,'$');
+			itemname = item;
 			
 			if (item) {
 				var wh = $('%dom.wh')[itemname];
 				if (!wh) {
 					var item = $(item, '!');
-					var w = Number(item.offsetWidth),
-						h = Number(item.offsetHeight);
-					$('%dom.wh')[itemname] = [w, h];
+					if(item.length){
+						var item =item[0];
+					}
+					var w = Number($(item).ow()),
+						h = Number($(item).oh());
+						if(h && w && item){
+							$('%dom.wh')[itemname] = [w, h];
+						}
 					console.log('DIV CENTER SAVED');
 				} else {
 					var w = Number(wh[0]),
@@ -621,8 +608,8 @@ $.prototype = {
 				var w = Number($('%dom.body_width')),
 					h = Number($('%dom.body_height'));
 			}
-			var divW = obj.offsetWidth,
-				divH = obj.offsetHeight;
+			var divW = $(obj).ow(),
+				divH = $(obj).oh();
 			if (divH > h) {
 				obj.removeAttribute('style');
 			} else {
