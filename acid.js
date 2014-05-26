@@ -1,5 +1,5 @@
 /**
- * $ JS BETA.
+ * ACID JS BETA.
  * @version 1.0
  * @author Thomas Marchi
  * @copyright 2014 Thomas Marchi
@@ -46,7 +46,15 @@ function $(name, item, act) {
 			
 			//quick function access
 			if(name[0] == '@'){
-				return proto.find_fun(name.substring(1));
+				var isthere=$.prototype.temp_fun[name];
+				if(isthere){
+					return isthere;
+				}else{
+					var obj= proto.find_fun(name.substring(1));
+					$.prototype.temp_fun[name]=obj;
+					$.prototype.temp_fun_clear(name);
+					return obj;
+				}
 			}
 			
 			//mem access
@@ -124,9 +132,18 @@ function $(name, item, act) {
 
 $.prototype = {
 	temp:{},
+	temp_fun:{},
 	temp_clear:function(name){
 		setTimeout(function() {
 			$.prototype.temp[name]=null;
+			name=null;
+			return false;
+		},10000);
+		return false;
+	},
+	temp_fun_clear:function(name){
+		setTimeout(function() {
+			$.prototype.temp_fun[name]=null;
 			name=null;
 			return false;
 		},10000);
@@ -188,6 +205,38 @@ $.prototype = {
 		}
 		return scope;
 	},
+	cls:function(item,context){
+		var opt=false;
+		if(!context){
+			var context=document;
+			var opt=true;
+		}
+		return context.getElementsByClassName(item) || false;
+	},
+	tag:function(item,context){
+		var opt=false;
+		if(!context){
+			var context=document;
+			var opt=true;
+		}
+		return context.getElementsByTagName(item) || false;
+	},
+	queryall:function(item,context){
+		var opt=false;
+		if(!context){
+			var context=document;
+			var opt=true;
+		}
+		return context.querySelectorAll(item) || false;
+	},
+	query:function(item,context){
+		var opt=false;
+		if(!context){
+			var context=document;
+			var opt=true;
+		}
+		return context.querySelector(item) || false;
+	},
 	dom: {
 		select:function(select,context){
 			var has=$.prototype.strng.has,
@@ -247,7 +296,6 @@ $.prototype = {
 				var obj=false;
 			}
 			if(obj && save){
-				var select=select;
 				$.prototype.temp_clear(select);
 				$.prototype.temp[select]=obj;
 			}
@@ -279,10 +327,7 @@ $.prototype = {
 			return r;	
 		},
 		is: function(obj) {
-			if (obj.nodeType) {
-				return true;
-			}
-			return false;
+			return typeof obj.nodeType == "number";
 		},
 		at: function(data) { // return classList obj
 								
@@ -291,15 +336,22 @@ $.prototype = {
 			var obj = $.prototype.dom.htmlobj_array(data);
 			
 			if (!data.scope || data.clear) {
+				$.prototype.dom.obj = null;
+			}
+			
+			if(data.clear){
 				$.prototype.temp[$.prototype.dom.selector]=null;
 				$.prototype.dom.selector = null;
-				$.prototype.dom.obj = null;
 			}
 
 			return (data.scope) ? $.prototype.scope(data.scope) : obj;
 		},
 		get: function(cls_obj, type, dir , noarray) { //return class objects
-			var obj = $.prototype.dom.obj[type](cls_obj) || false;
+			var parent=$.prototype.dom.obj;
+			if(!$.prototype.dom.is(parent)){
+				var parent=document;
+			}
+			var obj = parent[type](cls_obj) || false;
 			if(!noarray){
 				var obj = $.prototype.array.to(obj);
 			}
@@ -653,22 +705,24 @@ $.prototype = {
 				 info=data.info,
 				 attr = info.type,
 				 item = info.html;
-				if (attr == 'ap') {
-					return obj.appendChild(item);
-				}
-				if (!$.prototype.strng.hasvalue(item) && !attr) {
-					return obj.innerHTML;
-				}
+				
 				if(!attr){
-					var attr='in';
+					if (!$.prototype.strng.hasvalue(item)) {
+						return obj.innerHTML;
+					}
+				}else{
+					if (attr == 'ap') {
+						return obj.appendChild(item);
+					}
 				}
-				if (attr == 'in') {
+				
+				if (attr == 'in' || !attr) {
 					if (obj) {
 						while (obj.firstChild) {
 							obj.removeChild(obj.firstChild);
 						}
 					}
-					if ($('@dom.is')(item)) {
+					if ($.prototype.dom.is(item)) {
 						return obj.appendChild(item);
 					}
 					var attr = 'be';
@@ -677,7 +731,7 @@ $.prototype = {
 					if (attr == 'ib') {
 						return obj.parentNode.insertBefore(item, obj);
 					}
-					if (attr == 'be') {
+					else if (attr == 'be') {
 						var tempDiv = document.createElement('div');
 						tempDiv.insertAdjacentHTML("beforeend", item);
 						var frag = document.createDocumentFragment();
@@ -691,13 +745,13 @@ $.prototype = {
 							frag = null;
 						return obj;
 					}
-					if (attr == 'ab') {
+					else if (attr == 'ab') {
 						var attr = "afterbegin";
 					}
-					if (attr == 'bb') {
+					else if (attr == 'bb') {
 						var attr = "beforeBegin";
 					}
-					if (attr == 'ae') {
+					else if (attr == 'ae') {
 						var attr = "afterEnd";
 					}
 					obj.insertAdjacentHTML(attr, item);
@@ -857,7 +911,7 @@ $.prototype = {
 		}
 	},
 	timer:function(fun,time){
-		var fun=($('@strng.is')(fun))? $(fun): fun ;
+		var fun=($.prototype.strng.is(fun))? $(fun): fun ;
 		setTimeout(function() {
 			fun();
 			fun=null;
