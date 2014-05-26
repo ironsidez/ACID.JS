@@ -131,7 +131,6 @@ function $(name, item, act) {
 $.prototype = {
 temp:{},
 	temp_clear:function(name){
-		console.log(name);
 		setTimeout(function() {
 			$.prototype.temp[name]=null;
 			name=null;
