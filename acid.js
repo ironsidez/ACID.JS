@@ -266,7 +266,7 @@ $.prototype = {
 		},
 		exist:function(){
 			var r=false,
-			obj=$.prototype.dom.r();
+			obj=$.prototype.dom.obj;
 			if(obj){
 				if(obj instanceof Array){
 					if(obj.length > 0){
@@ -299,7 +299,7 @@ $.prototype = {
 			return (data.scope) ? $.prototype.scope(data.scope) : obj;
 		},
 		get: function(cls_obj, type, dir , noarray) { //return class objects
-			var obj = $.prototype.dom.r()[type](cls_obj) || false;
+			var obj = $.prototype.dom.obj[type](cls_obj) || false;
 			if(!noarray){
 				var obj = $.prototype.array.to(obj);
 			}
@@ -319,7 +319,7 @@ $.prototype = {
 			return $.prototype.dom.get(obj, 'querySelectorAll', dir);
 		},
 		event: function(name, event_name,type, dir) {
-			var obj = $.prototype.dom.r();
+			var obj = $.prototype.dom.obj;
 			
 			if(type=='-'){
 				$('@event.remove')(obj,name, event_name);
@@ -431,7 +431,7 @@ $.prototype = {
 			});
 		},
 		upto: function(name, dir) {
-			var obj = $.prototype.dom.r();
+			var obj = $.prototype.dom.obj;
 			while (obj.parentNode) {
 				var obj = obj.parentNode;
 				var cls = obj.classList;
@@ -445,7 +445,7 @@ $.prototype = {
 			return obj;
 		},
 		parlv: function() {
-			var obj = $.prototype.dom.r();
+			var obj = $.prototype.dom.obj;
 			var i = Number(obj.dataset.lv);
 			if (i > 0) {
 				var obj = obj.parentNode;
