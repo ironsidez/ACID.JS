@@ -527,7 +527,7 @@ $.prototype = {
 				 attr=data.info.attr;
 			var data=null;
 				 
-			if ($('@strng.hasvalue')(item)) {
+			if ($.prototype.strng.hasvalue(item)) {
 				if (item == '-') {
 					obj.removeAttribute(attr);
 				}else{
@@ -630,7 +630,7 @@ $.prototype = {
 			 attr_sub=data.attr_sub,
 			 attr_return=data.attr_return;
 			 var data=null;
-			if ($('@strng.hasvalue')(item)) {
+			if ($.prototype.strng.hasvalue(item)) {
 				var i=item.length,
 				act =[];
 				if(i > 0){
