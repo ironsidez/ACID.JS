@@ -306,6 +306,7 @@ $.prototype = {
 		exist:function(){
 			var r=false,
 			obj=$.prototype.dom.obj;
+
 			if(obj){
 				if(obj instanceof Array){
 					if(obj.length > 0){
