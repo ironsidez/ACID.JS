@@ -81,11 +81,11 @@ function $(name, item, act) {
 					if (typeof act === 'number') {
 						var obj = obj[act];
 					}
-					proto.temp_clear(name+act);
-					temp[name+act]=obj;
 				}else{
-					proto.temp_clear(name);
-					temp[name]=obj;
+					if(dom.is(obj)){
+						proto.temp_clear(name);
+						temp[name]=obj;
+					}
 				}
 			}
 			
@@ -254,8 +254,15 @@ $.prototype = {
 			return obj;	
 		},
 		obj: {},
-		r: function() {
-			return $.prototype.dom.obj || false;
+		selector:{},
+		r: function(dir) {
+			var obj=$.prototype.dom.obj;
+			if(!dir){
+				$.prototype.temp[$.prototype.dom.selector]=null;
+				$.prototype.dom.selector = null;
+				$.prototype.dom.obj = null;
+			}
+			return (dir) ? $.prototype.scope(dir) : obj;
 		},
 		exist:function(){
 			var r=false,
@@ -279,11 +286,13 @@ $.prototype = {
 		},
 		at: function(data) { // return classList obj
 								
-			data.obj=$.prototype.dom.r();
+			data.obj=$.prototype.dom.obj;
 			
 			var obj = $.prototype.dom.htmlobj_array(data);
 			
-			if (!data.scope) {
+			if (!data.scope || data.clear) {
+				$.prototype.temp[$.prototype.dom.selector]=null;
+				$.prototype.dom.selector = null;
 				$.prototype.dom.obj = null;
 			}
 
