@@ -51,7 +51,7 @@ function $(name, item, act) {
 			//mem access
 			if(name[0] == '%'){
 				if (hasvalue(item)) {
-					if (item != '#') {
+					if (item != '#' && item != '!') {
 						mem[name.substring(1)] = item;
 						var obj=item;
 					}
@@ -129,7 +129,7 @@ function $(name, item, act) {
 }
 
 $.prototype = {
-temp:{},
+	temp:{},
 	temp_clear:function(name){
 		setTimeout(function() {
 			$.prototype.temp[name]=null;
