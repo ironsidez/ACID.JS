@@ -9,6 +9,7 @@
  
 "use strict";
 
+
 function $(name, item, act) {
 	//import scopes
 	var proto=$.prototype,
@@ -81,18 +82,13 @@ function $(name, item, act) {
 					if (typeof act === 'number') {
 						var obj = obj[act];
 					}
-				}else{
-					if(dom.is(obj)){
-						proto.temp_clear(name);
-						temp[name]=obj;
-					}
 				}
 			}
 			
 			if (item == '!') {
 				return obj;
 			}
-			
+			dom.selector = name;
 			dom.obj = obj;
 			var obj = null,
 				item = null,
@@ -103,9 +99,6 @@ function $(name, item, act) {
 		if (name instanceof Array) {
 			if (item == '#') {
 				dom.obj = name;
-				return dom;
-			}
-			if(item){
 				return scope(item);
 			}
 			return dom;
@@ -127,6 +120,7 @@ function $(name, item, act) {
 	}
 	return proto;
 }
+
 
 $.prototype = {
 	temp:{},
@@ -233,6 +227,7 @@ $.prototype = {
 				
 			if(!context){
 				var context=document;
+				var save=true;
 			}
 			
 			if (space || less || more || bracket || multipledots || dotnhash) {
@@ -250,6 +245,11 @@ $.prototype = {
 			var len=obj.length;
 			if(len === 0){
 				var obj=false;
+			}
+			if(obj && save){
+				var select=select;
+				$.prototype.temp_clear(select);
+				$.prototype.temp[select]=obj;
 			}
 			return obj;	
 		},
