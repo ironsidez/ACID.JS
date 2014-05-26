@@ -237,6 +237,8 @@ $.prototype = {
 				less=has(select, "<"),
 				more=has(select, ">"),
 				dot=has(select, "."),
+				par=has(select, "("),
+				col=has(select, ":"),
 				hash=has(select, "#"),
 				bracket=has(select, "["),
 				cls=false,
@@ -270,7 +272,7 @@ $.prototype = {
 				var save=true;
 			}
 			
-			if (space || less || more || bracket || multipledots || dotnhash) {
+			if (space || less || more || bracket || multipledots || dotnhash || par || col) {
 				var obj = toArray(context.querySelectorAll(select));
 			} else if (id) {
 				var obj = context.getElementById(select.substring(1));
@@ -306,7 +308,6 @@ $.prototype = {
 		exist:function(){
 			var r=false,
 			obj=$.prototype.dom.obj;
-
 			if(obj){
 				if(obj instanceof Array){
 					if(obj.length > 0){
