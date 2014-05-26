@@ -51,8 +51,10 @@ function $(name, item, act) {
 					return isthere;
 				}else{
 					var obj= proto.find_fun(name.substring(1));
-					$.prototype.temp_fun[name]=obj;
-					$.prototype.temp_fun_clear(name);
+					if(typeof(obj) == "function"){
+						$.prototype.temp_fun[name]=obj;
+						$.prototype.temp_fun_clear(name);
+					}
 					return obj;
 				}
 			}
@@ -147,17 +149,6 @@ $.prototype = {
 			name=null;
 			return false;
 		},10000);
-		return false;
-	},
-	free: function(gc) { //clear a var(s) in mem
-		if (gc instanceof Array) {
-			var i = gc;
-			while (i--) {
-				$.prototype.mem[gc[i]] = 0;
-			}
-			return false;
-		}
-		$.prototype.mem[gc] = 0;
 		return false;
 	},
 	symbol:{
