@@ -738,8 +738,10 @@ $.prototype = {
 				while (i--) {
 					var a = obj[i].length;
 					if (a) {
+						empty[i]=[];
 						while (a--) {
-							data.obj=obj[i][a];
+							var temp=data;
+							temp.obj=obj[i][a];
 							empty[i][a] = $.prototype.dom.op(data);
 						}
 					} else {
