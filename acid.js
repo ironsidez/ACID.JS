@@ -9,7 +9,6 @@
  
 "use strict";
 
-
 function $(name, item, act) {
 	//import scopes
 	var proto=$.prototype,
@@ -17,21 +16,7 @@ function $(name, item, act) {
 		dom =proto.dom;
 		
 	if (name) {
-		if (typeof name === "string") {
-			
-			
-			var selectis=proto.temp[name];
-			if(selectis){
-				var obj=selectis();
-				if (item == '!') {
-					return obj;
-				}
-				if(item){
-					return scope(item);
-				}
-				dom.obj = obj;
-				return dom;
-			}
+		if (name.constructor === String) {
 			
 			//jump to scope
 			if (name.length == 1) {
@@ -72,7 +57,10 @@ function $(name, item, act) {
 			}
 			
 			//dom selection
-			var obj=dom.select(name);
+			var obj=proto.select_temp(name);
+			if(!obj){
+				var obj=dom.select(name);
+			}
 			
 			if (!obj) {
 				var obj = false;
@@ -127,6 +115,13 @@ function $(name, item, act) {
 
 
 $.prototype = {
+	select_temp:function(name,item){
+		var selectis=$.prototype.temp[name];
+		if(selectis){
+			return selectis();
+		}
+		return false;
+	},
 	temp:{},
 	temp_fun:{},
 	temp_clear:function(name){
@@ -134,7 +129,7 @@ $.prototype = {
 			$.prototype.temp[name]=null;
 			name=null;
 			return false;
-		},30000);
+		},10000);
 		return false;
 	},
 	temp_fun_clear:function(name){
@@ -190,22 +185,6 @@ $.prototype = {
 		}
 		return scope;
 	},
-	cls:function(item,context){
-		var opt=false;
-		if(!context){
-			var context=document;
-			var opt=true;
-		}
-		return context.getElementsByClassName(item) || false;
-	},
-	tag:function(item,context){
-		var opt=false;
-		if(!context){
-			var context=document;
-			var opt=true;
-		}
-		return context.getElementsByTagName(item) || false;
-	},
 	queryall:function(item,context){
 		var opt=false;
 		if(!context){
@@ -238,9 +217,8 @@ $.prototype = {
                 if (k.test(select)){
 	                var obj= context.getElementsByClassName(select.slice(1));
 	                if(save){
-	                	var safe=select.slice(1),
-			           		fun=function(){
-							 return document.getElementsByClassName(safe);
+	                	var fun=function(){
+							 return obj;
 						};
 	                }
                 }
@@ -248,8 +226,8 @@ $.prototype = {
                 if (k.test(select)){
                 	var obj=context.getElementById(select.slice(1));
                 	if(save){
-	                	var safe=select.slice(1);
-	                	var fun=function(){
+	                	var safe=select.slice(1),
+	                		fun=function(){
 							 return document.getElementById(safe);
 						};
 					}
@@ -258,7 +236,7 @@ $.prototype = {
 	            var obj= context.getElementsByTagName(select);
 	            if(save){
 		            var fun=function(){
-						return document.getElementsByTagName(select);
+						return obj;
 					};
 				}
             }
@@ -313,7 +291,7 @@ $.prototype = {
 			return typeof obj.nodeType == "number";
 		},
 		at: function(data) { // return classList obj
-								
+
 			data.obj=$.prototype.dom.obj;
 			var obj = $.prototype.dom.htmlobj_array(data);
 			
@@ -407,6 +385,11 @@ $.prototype = {
 		tc: function(name, dir) { //textcontent
 			var data=$.prototype.dom.build('prop_min',dir,'textContent');
 			data.info.item=name;
+			return $.prototype.dom.at(data);
+		},
+		ihtml: function(name, dir) { //innerhtml
+			var data=$.prototype.dom.build('ihtml',dir);
+			data.info=name;
 			return $.prototype.dom.at(data);
 		},
 		ow: function(name, dir) { //offsetWidth
@@ -643,7 +626,6 @@ $.prototype = {
 			return obj[attr];
 		},
 		prop_min_op:function(data){
-		
 			var obj=data.obj,
 			 item=data.info.item,
 			 attr=data.info.attr,
@@ -651,14 +633,23 @@ $.prototype = {
 			 attr_return=data.attr_return;
 			 var data=null;
 			if($.prototype.strng.hasvalue(item)){
-				var act = obj[attr]=item;
+				obj[attr]=item;
 				if (attr_return) {
-					return act;
+					return item;
 				}
 				return obj;
 			}
-			
 			return obj[attr];
+		},
+		ihtml_op:function(data){
+			var obj=data.obj,
+			item = data.info;
+			while (obj.firstChild) {
+				obj.removeChild(obj.firstChild);
+			}
+			obj.insertAdjacentHTML("beforeend", item);
+			var item = null,data=null;
+			return obj;
 		},
 		html_op:function(data){
 				var obj=data.obj,
@@ -672,7 +663,8 @@ $.prototype = {
 					}
 				}else{
 					if (attr == 'ap') {
-						return obj.appendChild(item);
+						obj.appendChild(item);
+						return obj;
 					}
 				}
 				
@@ -683,13 +675,15 @@ $.prototype = {
 						}
 					}
 					if ($.prototype.dom.is(item)) {
-						return obj.appendChild(item);
+						obj.appendChild(item);
+						return obj;
 					}
 					var attr = 'be';
 				}
 				if (item) {
 					if (attr == 'ib') {
-						return obj.parentNode.insertBefore(item, obj);
+						obj.parentNode.insertBefore(item, obj);
+						return obj;
 					}
 					else if (attr == 'be') {
 						var tempDiv = document.createElement('div');
@@ -717,8 +711,9 @@ $.prototype = {
 					obj.insertAdjacentHTML(attr, item);
 				}
 				var item = null,
-					attr = null;
-				var data=null;
+					attr = null,
+					obj=null,
+					data=null;
 				return obj;
 		},
 		op: function(data) {
@@ -737,7 +732,7 @@ $.prototype = {
 			
 			var obj=data.obj;
 			var empty=[];
-			
+
 			var i = obj.length;
 			if (i) {
 				while (i--) {
@@ -754,7 +749,6 @@ $.prototype = {
 				}
 				return empty;
 			} else {
-				var obj=null;
 				return $.prototype.dom.op(data);
 			}
 			
