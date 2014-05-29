@@ -919,7 +919,7 @@ $.prototype = {
 		url:{},
 		sys: {
 			name: '$.js',
-			version: 1.0,
+			version: 1.1,
 			platform_version: 'debug_platform',
 			cores: 2
 		}
