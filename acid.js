@@ -1,6 +1,6 @@
 /**
  * ACID JS BETA.
- * @version 1.1
+ * @version 1.6
  * @author Thomas Marchi
  * @copyright 2014 Thomas Marchi
  * @LNKit.com
@@ -23,19 +23,10 @@ function $(name, item, act) {
 				if(name.length==1){
 					return proto;
 				}
-				var isthere=proto.tempfun[name];
-				if(isthere){
-					return isthere;
-				}else{
-					var obj= proto.find_fun(name.substring(1));
-					if(typeof(obj) == "function"){
-						proto.tempfun[name]=obj;
-						proto.tempfunclear(name);
-					}
-					return obj;
-				}
+				var obj= proto.find_fun(name.substring(1));
+				return obj;
 			}
-			
+				
 			//mem access
 			if(name[0] == '%'){
 				if(name.length==1){
@@ -75,6 +66,7 @@ function $(name, item, act) {
 					}
 				}
 			}
+			
 			if (item == '!') {
 				return obj;
 			}
@@ -129,21 +121,9 @@ $.prototype = {
 		return false;
 	},
 	temp:{},
-	tempfun:{},
 	tempclear:function(name){
-		setTimeout(function() {
-			$.prototype.temp[name]=null;
-			name=null;
-			return false;
-		},10000);
-		return false;
-	},
-	tempfunclear:function(name){
-		setTimeout(function() {
-			$.prototype.tempfun[name]=null;
-			name=null;
-			return false;
-		},300);
+		$.prototype.temp={};
+		name=null;
 		return false;
 	},
 	symbol:{
@@ -203,7 +183,7 @@ $.prototype = {
 		}
 		return context.querySelector(item) || false;
 	},
-	dom: {
+	 dom: {
 		select:function(select,context){
 			var k = /^.[\w_-]+$/,
 				nt = /^[A-Za-z]+$/,
@@ -259,7 +239,6 @@ $.prototype = {
 				var obj=false;
 			}
 			if(obj && save){
-				$.prototype.tempclear(select);
 				$.prototype.temp[select]=fun;
 			}
 			return obj;	
@@ -381,7 +360,17 @@ $.prototype = {
 			return $.prototype.dom.at(data);
 		},
 		tc: function(name, dir) { //textcontent
-			var data=$.prototype.dom.build('prop_min',dir,'textContent');
+			var data=$.prototype.dom.build('objprop',dir,'textContent');
+			data.info.item=name;
+			return $.prototype.dom.at(data);
+		},
+		val: function(name, dir) { //textcontent
+			var data=$.prototype.dom.build('objprop',dir,'value');
+			data.info.item=name;
+			return $.prototype.dom.at(data);
+		},
+		sel: function(name, dir) { //textcontent
+			var data=$.prototype.dom.build('objprop',dir,'selected');
 			data.info.item=name;
 			return $.prototype.dom.at(data);
 		},
@@ -391,15 +380,15 @@ $.prototype = {
 			return $.prototype.dom.at(data);
 		},
 		ow: function(name, dir) { //offsetWidth
-			var data=$.prototype.dom.build('prop_min',dir,'offsetWidth');
+			var data=$.prototype.dom.build('objprop',dir,'offsetWidth');
 			return $.prototype.dom.at(data);
 		},
 		oh: function(name, dir) { //offsetHeight
-			var data=$.prototype.dom.build('prop_min',dir,'offsetHeight');
+			var data=$.prototype.dom.build('objprop',dir,'offsetHeight');
 			return $.prototype.dom.at(data);
 		},
 		ot: function(name, dir) { //offsetTop
-			var data=$.prototype.dom.build('prop_min',dir,'offsetTop');
+			var data=$.prototype.dom.build('objprop',dir,'offsetTop');
 			return $.prototype.dom.at(data);
 		},
 		cn: function(name, dir) { //className
@@ -418,6 +407,14 @@ $.prototype = {
 		},
 		clear: function(dir) { //clear obj
 			var data=$.prototype.dom.build('clear',dir);
+			return $.prototype.dom.at(data);
+		},
+		hide: function(dir) { //clear obj
+			var data=$.prototype.dom.build('hide',dir);
+			return $.prototype.dom.at(data);
+		},
+		show: function(dir) { //clear obj
+			var data=$.prototype.dom.build('show',dir);
 			return $.prototype.dom.at(data);
 		},
 		html: function(html, type, dir) { //place html
@@ -526,7 +523,7 @@ $.prototype = {
 			
 			return false;
 		},
-		dyloop_acts: function(data) {
+		dyloopop: function(data) {
 			
 			var obj=data.vars,
 				type=data.dynamic,
@@ -555,7 +552,7 @@ $.prototype = {
 				var send_obj = htmlobj;
 			}
 			if (items[0] != 'this' && type != 'mem') {
-				var send_obj = $(items[0], '!');
+				var send_obj = $(items[0],'#').r();
 			}
 			
 			if (type == 'memtog') {
@@ -571,16 +568,17 @@ $.prototype = {
 				$(items[0], items[1]);
 			}
 			if (type == 'to') {
-				var parent = $(items[0], '!');
+				var parent = $(items[0],'!');
 				if (!parent.classList.contains(items[1])) {
 					parent.className = '';
 				}
-				var send_obj=$(items[0], '!');
+				var send_obj=$(items[0]).r();
 			}
 			
 			if(send_obj){
 				data.obj=send_obj;
 				data.info.item=items[1];
+				
 				$.prototype.dom.loop(data);
 			}
 			var data=null;
@@ -596,10 +594,10 @@ $.prototype = {
 				if (i > 1) {
 					while (i--) {
 						data.vars=cmds[i];
-						$.prototype.dom.dyloop_acts(data);
+						$.prototype.dom.dyloopop(data);
 					}
 				} else {
-					$.prototype.dom.dyloop_acts(data);
+					$.prototype.dom.dyloopop(data);
 				}
 			}
 			var data=null;
@@ -608,7 +606,7 @@ $.prototype = {
 			return false;
 		}
 	},
-	op:{
+    op:{
 		attr:function(data){
 			var obj=data.obj,
 				 item=data.info.item,
@@ -660,6 +658,18 @@ $.prototype = {
 			var data=null;
 			return obj.parentNode.removeChild(obj) || false;
 		},
+		hide:function(data){
+			var obj=data.obj;
+			obj.style.display="none";
+			var data=null;
+			return obj;
+		},
+		show:function(data){
+			var obj=data.obj;
+			obj.style.display="";
+			var data=null;
+			return obj;
+		},
 		add:function(data){
 			var obj=data.obj,
 				info=data.info;
@@ -681,12 +691,12 @@ $.prototype = {
 			if (item) {
 				var wh = $('%dom.wh')[itemname];
 				if (!wh) {
-					var item = $(item, '!');
+					var item = $(item).r();
 					if(item.length){
 						var item =item[0];
 					}
-					var w = Number($(item).ow()),
-						h = Number($(item).oh());
+					var w = Number($(item).ow().toString()),
+						h = Number($(item).oh().toString());
 						if(h && w && item){
 							$('%dom.wh')[itemname] = [w, h];
 						}
@@ -752,7 +762,7 @@ $.prototype = {
 			}
 			return obj[attr];
 		},
-		prop_min:function(data){
+		objprop:function(data){
 			var obj=data.obj,
 			 item=data.info.item,
 			 attr=data.info.attr,
@@ -918,8 +928,8 @@ $.prototype = {
 		dom:{},
 		url:{},
 		sys: {
-			name: '$.js',
-			version: 1.1,
+			name: 'ACID.js',
+			version: 1.6,
 			platform_version: 'debug_platform',
 			cores: 2
 		}
@@ -937,3 +947,5 @@ $.prototype = {
 		cancelAnimationFrame(fun);
 	} //helper
 };
+
+setInterval($.prototype.tempclear,25000);//GC for class/tag live node lists
